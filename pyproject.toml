@@ -1,0 +1,55 @@
+[project]
+name = "fast-zero"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Your Name",email = "you@example.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13, < 4.0"
+dependencies = [
+    "fastapi (>=0.115.12,<0.116.0)",
+    "typing-extensions (>=4.13.0,<5.0.0)"
+]
+
+[tool.poetry]
+packages = [{include = "fast_zero", from = "src"}]
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.11.2"
+taskipy = "^1.14.1"
+
+[tool.poetry.group.pytest.dependencies]
+pytest-cov = "^6.0.0"
+
+[tool.pytest.ini_options]
+pythonpath = "."
+addopts = '-p no:warnigs'
+
+[tool.ruff]
+line-length = 79
+extend-exclude = ['migrations']
+
+[tool.ruuf.lint]
+preview = true
+select = ['I', 'F', 'E', 'W', 'PL', 'PT']
+
+[tool.ruff.format]
+preview = true
+quote-style = 'single'
+
+[tool.taskipy.tasks]
+run = 'fastapi dev src/fast_zero/app.py'
+
+pre_test = 'task lint'
+test = 'PYTHONPATH=src pytest --cov=src/fast_zero -vv' #diretorio raiz, indicar ao python sobre o diretorio
+post_test = 'coverage html'
+
+
+lint = 'ruff check . ; ruff check . --diff'
+format = 'ruff check . --fix ; ruff format .'
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
