@@ -69,3 +69,41 @@ def test_delete_user(client):
     response = client.delete('/users/1')
 
     assert response.json() == {'message': 'User deleted'}
+
+def test_delete_user_invalid_id(client):
+    response = client.delete('/users/0')
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json() == {'detail': 'User not found'}
+
+def test_delete_user_out_of_range(client):
+    response = client.delete('/users/999')
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json() == {'detail': 'User not found'}
+
+def test_put_user_invalid(client):
+    response = client.put(
+        '/users/0',
+        json={  # Adicionando um JSON válido
+            'username': 'new_name',
+            'password': 'new_password',
+            'email': 'new@email.com'
+        }
+    )
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json() == {'detail': 'User not found'}
+
+def test_put_user_out_of_range(client):
+    response = client.put(
+        '/users/999',
+        json={
+            'username': 'new_name',
+            'password': 'new_password',
+            'email': 'new@email.com'
+        }
+    )
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json() == {'detail': 'User not found'}
