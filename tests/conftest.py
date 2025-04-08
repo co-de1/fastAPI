@@ -1,14 +1,25 @@
 
 import pytest
-from src.fast_zero.app import app
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
 from models import table_registry
+from src.fast_zero.app import app
+from database import get_session
+from sqlalchemy import create_engine
 from  sqlalchemy.orm import Session
 
+
+
 @pytest.fixture()  #Boas praticas
-def client():
-    return TestClient(app)
+def client(session):
+
+    def get_session_override():
+        return session
+    with TestClient(app) as client:
+        app.dependency_overrides[get_session()] = get_session_override
+
+        yield client
+
+    app.dependency_override.clear()
 
 @pytest.fixture()
 def session():
