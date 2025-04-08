@@ -39,15 +39,7 @@ def test_read_user(client):
     response = client.get('/users/')
 
     assert response.status_code == HTTPStatus.OK
-    assert response.json() == {
-        'users': [
-            {
-                'username': 'testeusername',
-                'email': 'test@test.com',
-                'id': 1,
-            }
-        ]
-    }
+    assert response.json() == {'users': []}
 
 def test_update_user(client):
     response = client.put(

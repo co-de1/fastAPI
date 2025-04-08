@@ -1,8 +1,8 @@
 from http import HTTPStatus
 
 from fastapi import FastAPI, HTTPException, Depends
-from fastapi.params import Depends
 from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 from src.fast_zero.schemas import Message, UserSchema, UserPublic, UserDB, UserList
 from models import User
@@ -47,8 +47,15 @@ def create_users(user: UserSchema, session=Depends(get_session)):
         return db_user
 
 @app.get('/users/', response_model=UserList)
-def read_user():
-    return {'users': database}
+def read_user(
+        limit: int = 10,
+        skip: int = 0,
+        session: Session=Depends(get_session)
+):
+    user = session.scalars(
+        select(User).limit(limit).offset(skip)
+    )
+    return {'users': user}
 
 @app.put('/users/{user_id}', response_model=UserPublic)
 def update_user(user_id: int, user: UserSchema):
