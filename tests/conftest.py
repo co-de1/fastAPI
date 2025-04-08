@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from models import table_registry
+from models import table_registry, User
 from src.fast_zero.app import app
 from database import get_session
 from sqlalchemy import create_engine
@@ -34,3 +34,12 @@ def session():
         yield session
 
     table_registry.metadata.drop_all(engine)
+
+@pytest.fixture()
+def user(session):
+    user = User(username='Teste', email='teste@test.com', password='testtest')
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+
+    return user

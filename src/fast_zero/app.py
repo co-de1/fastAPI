@@ -4,13 +4,11 @@ from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from src.fast_zero.schemas import Message, UserSchema, UserPublic, UserDB, UserList
+from src.fast_zero.schemas import Message, UserSchema, UserPublic, UserList
 from models import User
 from  database import get_session
 
 app = FastAPI()
-database = []  # fake database
-
 
 @app.get(
     '/', status_code=HTTPStatus.OK, response_model=Message
@@ -58,23 +56,39 @@ def read_user(
     return {'users': user}
 
 @app.put('/users/{user_id}', response_model=UserPublic)
-def update_user(user_id: int, user: UserSchema):
-    if user_id < 1 or user_id > len(database):
+def update_user(
+        user_id: int, user: UserSchema,
+        session: Session=Depends(get_session)
+):
+    db_user = session.scalar(select(User).where(User.id == user_id))
+
+    if not db_user:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail='User not found'
         )
+    db_user.email = user.email
+    db_user.username = user.username
+    db_user.password = user.password
 
-    user_with_id = UserDB(id=user_id, **user.model_dump())
-    database[user_id - 1] = user_with_id
+    session.add(db_user)
+    session.commit()
+    session.refresh(db_user)
 
-    return user_with_id
+    return db_user
 
 @app.delete('/users/{user_id}', response_model=Message)
-def delete_user(user_id: int):
-    if user_id < 1 or user_id > len(database):
+def delete_user(
+        user_id: int,
+        session: Session=Depends(get_session)
+):
+    db_user = session.scalar(select(User).where(User.id == user_id))
+
+    if not db_user:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail='User not found'
         )
-    del database[user_id - 1]
 
-    return {'message': 'User deleted'}
+    session.delete(db_user)
+    session.commit()
+
+    return {"message": "User deleted"}
