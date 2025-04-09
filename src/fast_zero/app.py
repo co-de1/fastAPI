@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from src.fast_zero.schemas import Message, UserSchema, UserPublic, UserList
 from models import User
 from  database import get_session
+from src.fast_zero.security import get_password_hash
 
 app = FastAPI()
 
@@ -36,7 +37,9 @@ def create_users(user: UserSchema, session=Depends(get_session)):
                     detail='Email already exists',
                 )
         db_user = User(
-            username=user.username, email=user.email, password=user.password
+            username=user.username,
+            email=user.email,
+            password=get_password_hash(user.password)
         )
         session.add(db_user)
         session.commit()
@@ -68,7 +71,7 @@ def update_user(
         )
     db_user.email = user.email
     db_user.username = user.username
-    db_user.password = user.password
+    db_user.password = get_password_hash(user.password)
 
     session.add(db_user)
     session.commit()
