@@ -7,11 +7,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from sqlalchemy.pool import StaticPool
 
+from src.fast_zero.security import get_password_hash
 
 
-@pytest.fixture()  #Boas praticas
+@pytest.fixture()  # Boas praticas
 def client(session):
-
     def get_session_override():
         return session
 
@@ -20,6 +20,7 @@ def client(session):
         yield client
 
     app.dependency_overrides.clear()
+
 
 @pytest.fixture()
 def session():
@@ -35,11 +36,18 @@ def session():
 
     table_registry.metadata.drop_all(engine)
 
+
 @pytest.fixture()
 def user(session):
-    user = User(username='Teste', email='teste@test.com', password='testtest')
+
+    pwd = 'testtest'
+    user = User(username='Teste', email='teste@test.com',
+                password=get_password_hash(pwd))
     session.add(user)
     session.commit()
     session.refresh(user)
 
+    user.clean_password = pwd #MOnkey Patch
+
     return user
+

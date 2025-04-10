@@ -1,19 +1,21 @@
 from http import HTTPStatus
+from src.fast_zero.schemas import AuthToken  #modelo Pydantic
 
 from fastapi import FastAPI, HTTPException, Depends
+from  fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from src.fast_zero.schemas import Message, UserSchema, UserPublic, UserList
 from models import User
 from  database import get_session
-from src.fast_zero.security import get_password_hash
+from src.fast_zero.security import get_password_hash, verify_password, create_access_token
 
 app = FastAPI()
 
 @app.get(
     '/', status_code=HTTPStatus.OK, response_model=Message
-)  # endreço de acesso no website / -->> raíz do site
+)  # endregion de access no website / -->> root of wesite
 def read_root():
     return {'message': 'Ola, mundoo'}
 
@@ -95,3 +97,21 @@ def delete_user(
     session.commit()
 
     return {"message": "User deleted"}
+
+@app.post('/token', response_model=AuthToken)
+def login_for_access_token(
+        form_data: OAuth2PasswordRequestForm = Depends(),
+        session: Session = Depends(get_session)
+):
+    user = session.scalar(
+        select(User).where(User.email == form_data.username)
+    )
+
+    if not user or not verify_password(form_data.password, user.password):
+        raise HTTPException(
+            status_code=400, detail='Incorrect email or password'
+        )
+
+    access_token = create_access_token({'sub': user.email})
+
+    return {'access_token': access_token, 'token_type': 'Bearer'}
