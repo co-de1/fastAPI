@@ -13,10 +13,10 @@ def test_jwt():
     assert result['sub'] == data['sub']
     assert result['exp']
 
+
 def tes_jwt_invalid_token(client):
     response = client.delete(
-        'users/1',
-        headers={'Authorization': 'Bearer token-invalid'}
+        'users/1', headers={'Authorization': 'Bearer token-invalid'}
     )
 
     assert response.status_code == HTTPStatus.UNAUTHORIZED

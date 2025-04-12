@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 
 pwd_context = PasswordHash.recommended()
-oauth2_schema = OAuth2PasswordBearer(tokenUrl='token')
+oauth2_schema = OAuth2PasswordBearer(tokenUrl='auth/token')
 
 SECRET_KEY = 'Your-secret-key'
 ALGORITHM = 'HS256'
