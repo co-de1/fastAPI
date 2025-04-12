@@ -1,5 +1,5 @@
 from zoneinfo import ZoneInfo
-from models import User
+from src.fast_zero.models import User
 
 import jwt
 from fastapi.security import OAuth2PasswordBearer
@@ -8,16 +8,14 @@ from pwdlib import PasswordHash
 from jwt import encode, PyJWTError
 from datetime import datetime, timedelta
 
-from database import get_session
+from src.fast_zero.database import get_session
 from sqlalchemy.orm import Session
 from sqlalchemy import select
+from src.fast_zero.settings import Settings
 
 pwd_context = PasswordHash.recommended()
 oauth2_schema = OAuth2PasswordBearer(tokenUrl='auth/token')
-
-SECRET_KEY = 'Your-secret-key'
-ALGORITHM = 'HS256'
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+settings = Settings()
 
 
 def get_password_hash(password: str) -> str:
@@ -31,12 +29,14 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 def create_access_token(data_payload: dict) -> str:
     to_encode = data_payload.copy()
     expire = datetime.now(tz=ZoneInfo('UTC')) + timedelta(
-        minutes=ACCESS_TOKEN_EXPIRE_MINUTES
+        minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
     )
 
     to_encode.update({'exp': expire})
 
-    encoded_jwt = encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = encode(
+        to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM
+    )
 
     return encoded_jwt
 
@@ -52,7 +52,9 @@ def get_current_user(
     )
 
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
         username: str = payload.get('sub')
         if not username:
             raise credentials_exception

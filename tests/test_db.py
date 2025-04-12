@@ -1,4 +1,4 @@
-from models import User
+from src.fast_zero.models import User
 from sqlalchemy import select
 
 

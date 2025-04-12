@@ -1,6 +1,7 @@
 from http import HTTPStatus
 
-def test_get_token(client, user):
+
+def test_get_token(client, user, token):
     response = client.post(
         '/auth/token',
         data={'username': user.email, 'password': user.clean_password},

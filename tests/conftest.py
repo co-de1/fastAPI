@@ -1,8 +1,8 @@
 import pytest
 from fastapi.testclient import TestClient
-from models import table_registry, User
+from src.fast_zero.models import table_registry, User
 from src.fast_zero.app import app
-from database import get_session
+from src.fast_zero.database import get_session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from sqlalchemy.pool import StaticPool

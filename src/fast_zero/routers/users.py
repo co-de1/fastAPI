@@ -1,23 +1,28 @@
 from fastapi import APIRouter, HTTPException, Depends
 from src.fast_zero.schemas import Message, UserSchema, UserPublic, UserList
 from sqlalchemy.orm import Session
+
 from http import HTTPStatus
+from typing import Annotated
+
 from sqlalchemy import select
-from models import User
-from database import get_session
+from src.fast_zero.models import User
+from src.fast_zero.database import get_session
 from src.fast_zero.security import (
     get_password_hash,
     get_current_user,
 )
 
 router = APIRouter(prefix='/users', tags=['users'])
+T_Session = Annotated[Session, Depends(get_session)]
+T_CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
 @router.get('/', response_model=UserList)
 def read_user(
+    session: T_Session,
     limit: int = 10,
     skip: int = 0,
-    session: Session = Depends(get_session),
 ):
     user = session.scalars(select(User).limit(limit).offset(skip))
     return {'users': user}
@@ -26,7 +31,7 @@ def read_user(
 @router.post('/', status_code=HTTPStatus.CREATED, response_model=UserPublic)
 def create_users(
     user: UserSchema,
-    session=Depends(get_session),
+    session: T_Session,
 ):
     db_user = session.scalar(
         select(User).where(
@@ -58,10 +63,10 @@ def create_users(
 
 @router.put('/{user_id}', response_model=UserPublic)
 def update_user(
+    session: T_Session,
     user_id: int,
     user: UserSchema,
-    session: Session = Depends(get_session),
-    current_user=Depends(get_current_user),
+    current_user: T_CurrentUser,
 ):
     # db_user = session.scalar(select(User).where(User.id == user_id))
 
@@ -81,9 +86,9 @@ def update_user(
 
 @router.delete('/{user_id}', response_model=Message)
 def delete_user(
+    session: T_Session,
     user_id: int,
-    session: Session = Depends(get_session),
-    current_user=Depends(get_current_user),
+    current_user: T_CurrentUser,
 ):
     # db_user = session.scalar(select(User).where(User.id == user_id))
 

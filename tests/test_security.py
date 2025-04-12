@@ -1,6 +1,6 @@
 from http import HTTPStatus
 
-from src.fast_zero.security import create_access_token, SECRET_KEY, ALGORITHM
+from src.fast_zero.security import create_access_token, settings
 from jwt import decode
 
 
@@ -8,7 +8,7 @@ def test_jwt():
     data = {'sub': 'test@tets.com'}
     token = create_access_token(data)
 
-    result = decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    result = decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
 
     assert result['sub'] == data['sub']
     assert result['exp']

@@ -66,10 +66,7 @@ def test_delete_user(client, user, token):
 
 def test_delete_user_invalid_id(client, token):
     response = client.delete(
-        '/users/0',
-        headers={
-            'Authorization': f'Bearer {token}'
-        }
+        '/users/0', headers={'Authorization': f'Bearer {token}'}
     )
 
     assert response.status_code == HTTPStatus.BAD_REQUEST
@@ -78,8 +75,7 @@ def test_delete_user_invalid_id(client, token):
 
 def test_delete_user_out_of_range(client, token):
     response = client.delete(
-        '/users/999',
-        headers={'Authorization': f'Bearer {token}'}
+        '/users/999', headers={'Authorization': f'Bearer {token}'}
     )
 
     assert response.status_code == HTTPStatus.BAD_REQUEST
