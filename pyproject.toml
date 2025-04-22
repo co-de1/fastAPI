@@ -25,6 +25,7 @@ packages = [{include = "fast_zero", from = "src"}]
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.11.2"
 taskipy = "^1.14.1"
+factory-boy = "^3.3.3"
 
 [tool.poetry.group.pytest.dependencies]
 pytest-cov = "^6.0.0"

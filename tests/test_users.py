@@ -37,9 +37,9 @@ def test_read_user_with_users(client, user):
     assert response.json() == {'users': [user_schema]}
 
 
-def test_update_user(client, user, token):
+def test_update_user(client, other_user, token):
     response = client.put(
-        f'/users/{user.id}',
+        f'/users/{other_user.id}',
         headers={'Authorization': f'Bearer {token}'},
         json={
             'username': 'testeusername2',
@@ -55,9 +55,9 @@ def test_update_user(client, user, token):
     }
 
 
-def test_delete_user(client, user, token):
+def test_delete_user(client, other_user, token):
     response = client.delete(
-        f'/users/{user.id}',
+        f'/users/{other_user.id}',
         headers={'Authorization': f'Bearer {token}'},
     )
 
