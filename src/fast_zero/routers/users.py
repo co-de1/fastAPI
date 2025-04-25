@@ -90,14 +90,18 @@ def delete_user(
     user_id: int,
     current_user: T_CurrentUser,
 ):
-    # db_user = session.scalar(select(User).where(User.id == user_id))
-
     if current_user.id != user_id:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST, detail='Not enough permissions'
         )
 
+    # Verifica se o usuário existe no banco (opcional)
+    db_user = session.get(User, user_id)
+    if not db_user:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND, detail='User not found'
+        )
+
     session.delete(current_user)
     session.commit()
-
     return {'message': 'User deleted'}

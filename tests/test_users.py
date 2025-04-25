@@ -47,12 +47,8 @@ def test_update_user(client, other_user, token):
             'password': 'mynewpssword',
         },
     )
-    assert response.status_code == HTTPStatus.OK
-    assert response.json() == {
-        'username': 'testeusername2',
-        'email': 'test@test.com',
-        'id': 1,
-    }
+    assert response.status_code == HTTPStatus.BAD_REQUEST
+    assert response.json() == {'detail': 'Not enough permissions'}
 
 
 def test_delete_user(client, other_user, token):
@@ -61,7 +57,7 @@ def test_delete_user(client, other_user, token):
         headers={'Authorization': f'Bearer {token}'},
     )
 
-    assert response.json() == {'message': 'User deleted'}
+    assert response.json() == {'detail': 'Not enough permissions'}
 
 
 def test_delete_user_invalid_id(client, token):

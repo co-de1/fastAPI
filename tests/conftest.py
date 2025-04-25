@@ -10,6 +10,7 @@ from sqlalchemy.pool import StaticPool
 
 from src.fast_zero.security import get_password_hash
 
+
 class UserFactory(factory.Factory):
     class Meta:
         model = User
@@ -17,6 +18,7 @@ class UserFactory(factory.Factory):
     username = factory.Sequence(lambda n: f'test{n}')
     email = factory.LazyAttribute(lambda obj: f'{obj.username}@test.com')
     password = factory.LazyAttribute(lambda obj: f'{obj.username}+senha')
+
 
 @pytest.fixture()  # Boas praticas
 def client(session):
@@ -48,9 +50,7 @@ def session():
 @pytest.fixture()
 def user(session):
     pwd = 'testtest'
-    user = UserFactory(
-        password= get_password_hash(pwd)
-    )
+    user = UserFactory(password=get_password_hash(pwd))
 
     session.add(user)
     session.commit()
@@ -64,17 +64,15 @@ def user(session):
 @pytest.fixture()
 def other_user(session):
     pwd = 'testtest'
-    other_user = UserFactory(
-        password= get_password_hash(pwd)
-    )
+    user = UserFactory(password=get_password_hash(pwd))
 
-    session.add(other_user)
+    session.add(user)
     session.commit()
-    session.refresh(other_user)
+    session.refresh(user)
 
-    other_user.clean_password = pwd  # MOnkey Patch
+    user.clean_password = pwd  # MOnkey Patch
 
-    return other_user
+    return user
 
 
 @pytest.fixture()
